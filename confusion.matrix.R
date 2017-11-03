@@ -28,5 +28,6 @@ confusion.matrix = function(prediction,true.values){
 	
 	F.measure = 2*precision*recall / (precision + recall)
 	
-	return(list(conf, recall, precision, accuracy, kappa, F.measure))
+	return(list(conf=conf, recall=recall, precision=precision, 
+				accuracy=accuracy, kappa=kappa, F.measure=F.measure))
 }
