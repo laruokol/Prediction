@@ -13,35 +13,56 @@
 #                           index of the response in 
 #                           the test data.
 #         plot              Plot or not? (default = TRUE)
-#         ...               Additional arguments passed 
-#                           to plot.
+#                           If yes, will also returbn a 
+#                           ggplot object.
 #
 # (c) Lasse Ruokolainen -- October 2017
+#         last modified -- December 2017
 ##########################################################
 
-roc.curve = function(model, test.data, response.variable, plot = T,...){
+roc.curve = function(model, test.data, response.variable, 
+					 pred1 = NULL,plot = T,...){
   library(ROCR)
-  
+  library(ggplot2)
   
   # Make sure response variable is binary (0/1):
   y = as.numeric(factor(test.data[,response.variable])) - 1
 
   # Output model prediction as probabilities:
-  pred1 = predict(model,test.data,type = 'prob')
-  
-  # Create prediction object:
-  pred2 = prediction(pred1[,2],y)
-  
+  if(is.null(pred1)){
+	  pred1 = predict(model,test.data,type = 'prob')
+	  # Create prediction object:
+	  pred2 = prediction(pred1[,2],y)
+  } else {
+	  # Create prediction object:
+	  pred2 = prediction(pred1,y)  	
+  }
+    
   # Calculate receiver-operator metrics:
   perf = performance(pred2,'tpr','fpr')
+  x.p = unlist(perf@x.values)
+  y.p = unlist(perf@y.values)  
   
-  # Plot ROC-curve
-  plot(perf,col='dodgerblue',lwd=1.5,...)
-    lines(c(0,1),c(0,1),lty=2)
-    
+  # Output cutoff:
+  perf.c = performance(pred2,'fpr',x.measure='cutoff')
+  y.c = unlist(perf.c@x.values)
+  x.c = unlist(perf.c@y.values)
+  
+  df = data.frame(x=rep(x.c,2),y=c(y.c,y.p),type=rep(c('Cut-off','ROC'),each=length(x.c)))
+  
   # Calculate Area Under the roc-Curve (AUC):  
-  auc = unlist(performance(pred2,'auc')@y.values)
+  auc = unlist(performance(pred2,'auc')@y.values)  
+  cat(paste('AUC:',as.character(signif(auc,3))))
   
-  print('AUC:')
-  return(auc)
+  # Plot ROC-curve  
+  if(plot==TRUE){
+	p = ggplot(df,aes(x,y,col=type)) + 
+    	geom_line(aes(x,y),linetype=2,inherit.aes=F,data=data.frame(x=c(0,1),y=c(0,1)))+
+	  	geom_line(size=1.0) + 
+    	xlab('False positive rate')+ylab('True positive rate') + 
+	    theme_light() + theme(axis.text = element_text(size=10),axis.title = element_text(size=12)) + 
+    	scale_color_manual(values=c('blue2','red2'),name='')  	
+  	print(p)	
+  	return(p)
+  }  
 }
