@@ -30,7 +30,7 @@ cv.roc.curve = function(models,test.data,respvar,plot = TRUE){
 	.require.package('ggplot2')	
 
 	# Generate prediction probabilities for each model:
-	pred1 = foreach(ii = 1:length(models)) %do% {
+	pred1 = foreach(ii = 1:length(models)) %dopar% {
 		pred1 = predict(models[[ii]],d.test,type = 'prob')[,2]
 	}
 
