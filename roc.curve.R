@@ -17,13 +17,13 @@
 #                           ggplot object.
 #
 # (c) Lasse Ruokolainen -- October 2017
-#         last modified -- December 2017
+#         last modified -- January 2018
 ##########################################################
 
 roc.curve = function(model, test.data, response.variable, 
 					 pred1 = NULL,plot = T,...){
-  library(ROCR)
-  library(ggplot2)
+  .require.package('ROCR')
+  .require.package('ggplot2')	
   
   # Make sure response variable is binary (0/1):
   y = as.numeric(factor(test.data[,response.variable])) - 1
@@ -45,8 +45,8 @@ roc.curve = function(model, test.data, response.variable,
   
   # Output cutoff:
   perf.c = performance(pred2,'fpr',x.measure='cutoff')
-  y.c = unlist(perf.c@x.values)
   x.c = unlist(perf.c@y.values)
+  y.c = unlist(perf.c@x.values); y.c[1] = 1
   
   df = data.frame(x=rep(x.c,2),y=c(y.c,y.p),type=rep(c('Cut-off','ROC'),each=length(x.c)))
   
@@ -63,6 +63,15 @@ roc.curve = function(model, test.data, response.variable,
 	    theme_light() + theme(axis.text = element_text(size=10),axis.title = element_text(size=12)) + 
     	scale_color_manual(values=c('blue2','red2'),name='')  	
   	print(p)	
-  	return(p)
   }  
+}
+
+.require.package = function(package, ...) {
+  if(suppressWarnings(!require(package, character.only=T, quietly=T))) { 
+    fun = sys.calls()[[1]][1]
+    message(paste("Function ", fun, " needs: ", package,
+                  "; not found, installing...", sep=""))
+    install.packages(package, ...)
+    require(package, character.only=T)
+  }
 }
