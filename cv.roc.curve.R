@@ -26,7 +26,8 @@ cv.roc.curve = function(predictions,test.labels,plot = TRUE){
   .require.package('foreach')
   .require.package('parallel')
   .require.package('ROCR')
-  .require.package('ggplot2')	
+  .require.package('ggplot2')
+  .require.package('ggalt')
   
   # Generate prediction objects:
   preds = lapply(colnames(predictions),function(namex) prediction(predictions[,namex],test.labels[,namex]))
@@ -37,6 +38,7 @@ cv.roc.curve = function(predictions,test.labels,plot = TRUE){
   
   # Interpolate ROC-curves fro compatibility:
   x.out = seq(0,1,len=100)
+  x.out = seq(0,1,len=min(do.call(c,lapply(perf,function(x) length(unlist(x@x.values))))))
   interp = mclapply(perf,function(x) approx(x=unlist(x@x.values),
                                             y=unlist(x@y.values),xout=x.out))
   interp.y = mclapply(interp,function(x) do.call(cbind,x)[,'y'])
@@ -52,8 +54,8 @@ cv.roc.curve = function(predictions,test.labels,plot = TRUE){
   if(plot == TRUE){
     p = ggplot(df,aes(x,mean))+
       geom_abline(intercept=0,slope=1,col='gray50',linetype=2)+
-      geom_ribbon(aes(x=x, ymax=max, ymin=min), fill="red3", alpha=.25)+
-      geom_line(col='red3',size=1)+
+      geom_ribbon(aes(x=x, ymax=max, ymin=min), fill="red3", alpha=.25,stat="stepribbon")+
+      geom_step(col='red3',size=1)+
       xlab('True negative rate') + ylab('True positive rate')+
       theme_classic()
     print(p)
