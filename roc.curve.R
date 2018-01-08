@@ -58,7 +58,7 @@ roc.curve = function(model, test.data, response.variable,
   if(plot==TRUE){
 	p = ggplot(df,aes(x,y,col=type)) + 
     	geom_line(aes(x,y),linetype=2,inherit.aes=F,data=data.frame(x=c(0,1),y=c(0,1)))+
-	  	geom_line(size=1.0) + 
+	  	geom_step(size=1.0) + 
     	xlab('False positive rate')+ylab('True positive rate') + 
 	    theme_light() + theme(axis.text = element_text(size=10),axis.title = element_text(size=12)) + 
     	scale_color_manual(values=c('blue2','red2'),name='')  	
