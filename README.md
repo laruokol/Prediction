@@ -8,7 +8,3 @@ This repository contains the following scripts:
 3. confusion.matrix.R -- USE: calculates the confusion matrix for binary classifican along with associated indices.
 
 Manual: [HTML](https://rawgit.com/laruokol/Prediction/master/ROC.manual.html)
-
-~~~~{.r}
-print('test')
-~~~~
